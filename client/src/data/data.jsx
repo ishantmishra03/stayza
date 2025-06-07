@@ -22,6 +22,7 @@ export const rooms = [
     rating: 4.5,
     type: "Luxury Room",
     amenities: ["Free Wifi", "Pool Access", "Room Service"],
+    isAvailable: true,
   },
   {
     _id: "2",
@@ -37,6 +38,7 @@ export const rooms = [
     rating: 4.3,
     type: "Double Bed",
     amenities: ["Free Wifi", "Mountain View", "Free Breakfast"],
+    isAvailable: true,
   },
   {
     _id: "3",
@@ -52,6 +54,7 @@ export const rooms = [
     rating: 4.7,
     type: "Luxury Room",
     amenities: ["Pool Access", "Room Service", "Free Wifi"],
+    isAvailable: true,
   },
   {
     _id: "4",
@@ -67,6 +70,7 @@ export const rooms = [
     rating: 4.2,
     type: "Single Bed",
     amenities: ["Mountain View", "Free Breakfast", "Room Service"],
+    isAvailable: false,
   },
 ];
 
@@ -83,7 +87,7 @@ export const userDummyData = {
     "username": "Dev",
     "email": "dev@gmail.com",
     "image": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvdXBsb2FkZWQvaW1nXzJ2N2c5YVpSSEFVYVUxbmVYZ2JkSVVuWnFzWSJ9",
-    "role": "hotelOwner",
+    "role": "admin",
     "createdAt": "2025-03-25T09:29:16.367Z",
     "updatedAt": "2025-04-10T06:34:48.719Z",
     "__v": 1,
@@ -155,3 +159,11 @@ export const userBookingsDummyData = [
         "__v": 0
     }
 ]
+
+export const dashboardDummyData = {
+    "totalBookings": 3,
+    "totalRevenue": 897,
+    "bookings": userBookingsDummyData
+}
+
+

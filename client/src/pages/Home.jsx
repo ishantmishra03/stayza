@@ -26,6 +26,7 @@ const Home = () => {
   // Main Page Content
   return (
     <div>
+      
       <div className="relative h-screen bg-cover bg-center bg-[url('/background.webp')]">
         <div className="absolute inset-0 bg-black/50 bg-opacity-40"></div>
         <div className="relative z-10">

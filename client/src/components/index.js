@@ -6,5 +6,7 @@ import HotelCard from "./HotelCard/HotelCard"
 import Testimonial from "./Testimonial/Testimonial"
 import Newsletter from "./Newsletter/Newsletter"
 
+import HotelRegister from "./HotelRegister/HotelRegister"
 
-export { Navbar, Footer, Hero, Featured, HotelCard, Testimonial, Newsletter }
+
+export { Navbar, Footer, Hero, Featured, HotelCard, Testimonial, Newsletter, HotelRegister }
