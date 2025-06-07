@@ -5,14 +5,18 @@ import { Navbar, HotelRegister } from "./components";
 import Layout from "./pages/Admin/Layout";
 import Dashboard from "./pages/Admin/Dashboard";
 import AddRoom from "./pages/Admin/AddRoom";
-import ListRoom from "./pages/Admin/ListRoom"
+import ListRoom from "./pages/Admin/ListRoom";
+import { Toaster } from "react-hot-toast";
+import {useAppContext} from "./context/AppContext"
 
 const App = () => {
   const isAdmin = useLocation().pathname.includes("admin");
+  const { showHotelReg } = useAppContext();
   return (
     <div>
       {!isAdmin && <Navbar />}
-      {false && <HotelRegister />}
+      {showHotelReg && <HotelRegister />}
+      <Toaster />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/hotels" element={<Hotels />} />

@@ -1,13 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { rooms as dummyRooms } from "../../data/data";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const ListRoom = () => {
+  const { axios, getToken, user } = useAppContext();
   const [rooms, setRooms] = useState([]);
 
+  const fetchRooms = useCallback(async () => {
+    try {
+      const { data } = await axios.get("/api/room/admin", {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        setRooms(data.rooms);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  },[axios, getToken]);
+
   useEffect(() => {
-    setRooms(dummyRooms);
-  }, []);
+    if (user) {
+      fetchRooms();
+    }
+  }, [user, fetchRooms]);
 
   const toggleAvailability = (id) => {
     setRooms((prev) =>
@@ -15,14 +34,15 @@ const ListRoom = () => {
         room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
       )
     );
-
   };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-8">
       {/* Title */}
       <div className="flex flex-col justify-center items-center text-center md:items-start md:text-left mb-6">
-        <h1 className="text-3xl md:text-4xl playfair font-semibold">Hotel Lists</h1>
+        <h1 className="text-3xl md:text-4xl playfair font-semibold">
+          Hotel Lists
+        </h1>
         <p className="text-sm md:text-base text-gray-500/90 mt-2 max-w-2xl outfit">
           Monitor your room listings, track bookings and manage availability.
         </p>

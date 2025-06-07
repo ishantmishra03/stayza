@@ -4,8 +4,10 @@ import { FiMenu, FiX, FiSearch } from "react-icons/fi";
 import { FaRegBuilding, FaHotel } from "react-icons/fa";
 import { TbBrandBooking } from "react-icons/tb";
 import { useClerk, useUser, UserButton } from "@clerk/clerk-react";
+import { useAppContext } from "../../context/AppContext";
 
 const Navbar = () => {
+  const { isAdmin, setShowHotelReg } = useAppContext();
   const navLinks = [
     { name: "Home", path: "/", icon: <FaRegBuilding /> },
     { name: "Hotels", path: "/hotels", icon: <FaHotel /> },
@@ -16,7 +18,7 @@ const Navbar = () => {
   const { openSignIn } = useClerk();
   const { user } = useUser();
   const navigate = useNavigate();
-  const location = useLocation();  
+  const location = useLocation();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -31,13 +33,30 @@ const Navbar = () => {
   const isBookingPage = location.pathname.includes("my-bookings");
 
   // Dynamic navbar styles based on URL
-  const navBg = isHotelPage || isBookingPage ? "bg-white shadow-md" : isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent";
-  const textColor = isHotelPage || isBookingPage ? "text-black" : isScrolled ? "text-black" : "text-white";
-  const iconColor = isHotelPage || isBookingPage ? "text-black" : isScrolled ? "text-black" : "text-white";
+  const navBg =
+    isHotelPage || isBookingPage
+      ? "bg-white shadow-md"
+      : isScrolled
+      ? "bg-white/80 shadow-md backdrop-blur-sm"
+      : "bg-transparent";
+  const textColor =
+    isHotelPage || isBookingPage
+      ? "text-black"
+      : isScrolled
+      ? "text-black"
+      : "text-white";
+  const iconColor =
+    isHotelPage || isBookingPage
+      ? "text-black"
+      : isScrolled
+      ? "text-black"
+      : "text-white";
   const borderColor = isScrolled ? "border-black" : "border-white";
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 px-4 md:px-16 lg:px-24 xl:px-32 ${navBg}`}>
+    <nav
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 px-4 md:px-16 lg:px-24 xl:px-32 ${navBg}`}
+    >
       <div className="flex items-center justify-between py-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
@@ -58,12 +77,14 @@ const Navbar = () => {
             </Link>
           ))}
 
-          <button
-            onClick={() => navigate("/dashboard")}
-            className={`border px-4 py-1 rounded-full text-sm cursor-pointer transition ${borderColor} ${textColor} hover:bg-white/20`}
-          >
-            Dashboard
-          </button>
+          {user && (
+            <button
+              onClick={() => isAdmin ? navigate("/admin"): setShowHotelReg(true)}
+              className={`border px-4 py-1 rounded-full text-sm cursor-pointer transition ${borderColor} ${textColor} hover:bg-white/20`}
+            >
+              {isAdmin ? "Dashboard" : "List your Hotel"}
+            </button>
+          )}
         </div>
 
         {/* Desktop Right */}
@@ -133,12 +154,16 @@ const Navbar = () => {
           </Link>
         ))}
 
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="border px-4 py-1 rounded-full text-gray-800 border-gray-700 hover:bg-gray-100 transition"
-        >
-          Dashboard
-        </button>
+        <div className="hidden lg:block">
+          {user && (
+            <button
+              onClick={() => isAdmin ? navigate("/admin"): setShowHotelReg(true)}
+              className={`border px-4 py-1 rounded-full text-sm cursor-pointer transition ${borderColor} ${textColor} hover:bg-white/20`}
+            >
+              {isAdmin ? "Dashboard" : "List your Hotel"}
+            </button>
+          )}
+        </div>
 
         {!user && (
           <button
