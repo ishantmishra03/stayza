@@ -3,6 +3,8 @@ import Footer from "./Footer/Footer"
 import Hero from "./Hero/Hero"
 import Featured from "./Featured/Featured"
 import HotelCard from "./HotelCard/HotelCard"
+import Testimonial from "./Testimonial/Testimonial"
+import Newsletter from "./Newsletter/Newsletter"
 
 
-export { Navbar, Footer, Hero, Featured, HotelCard }
+export { Navbar, Footer, Hero, Featured, HotelCard, Testimonial, Newsletter }

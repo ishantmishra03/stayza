@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiSearch } from "react-icons/fi";
 import { FaRegBuilding, FaHotel } from "react-icons/fa";
 import { TbBrandBooking } from "react-icons/tb";
@@ -13,10 +13,10 @@ const Navbar = () => {
 
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
   const { openSignIn } = useClerk();
   const { user } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();  
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -26,17 +26,18 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navBg = isScrolled
-    ? "bg-white/80 shadow-md backdrop-blur-sm"
-    : "bg-transparent";
-  const textColor = isScrolled ? "text-black" : "text-white";
-  const iconColor = isScrolled ? "text-black" : "text-white";
+  // Check if the current path contains 'hotel'
+  const isHotelPage = location.pathname.includes("hotel");
+  const isBookingPage = location.pathname.includes("my-bookings");
+
+  // Dynamic navbar styles based on URL
+  const navBg = isHotelPage || isBookingPage ? "bg-white shadow-md" : isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent";
+  const textColor = isHotelPage || isBookingPage ? "text-black" : isScrolled ? "text-black" : "text-white";
+  const iconColor = isHotelPage || isBookingPage ? "text-black" : isScrolled ? "text-black" : "text-white";
   const borderColor = isScrolled ? "border-black" : "border-white";
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 px-4 md:px-16 lg:px-24 xl:px-32 ${navBg}`}
-    >
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 px-4 md:px-16 lg:px-24 xl:px-32 ${navBg}`}>
       <div className="flex items-center justify-between py-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
@@ -49,7 +50,7 @@ const Navbar = () => {
             <Link
               key={idx}
               to={link.path}
-              className={`group flex items-center gap-2 ${textColor}  transition`}
+              className={`group flex items-center gap-2 ${textColor} transition`}
             >
               {link.icon}
               <span>{link.name}</span>
@@ -89,7 +90,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center gap-3 ">
+        <div className="md:hidden flex items-center gap-3">
           {user && (
             <UserButton>
               <UserButton.MenuItems>
@@ -109,8 +110,8 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-0 left-0 w-full h-screen  text-gray-800 flex flex-col items-center justify-center gap-6 transition-transform duration-500 z-50 bg-white/90 background-blur-xl
-                ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 w-full h-screen text-gray-800 flex flex-col items-center justify-center gap-6 transition-transform duration-500 z-50 bg-white/90 background-blur-xl
+        ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <button
           className="absolute top-4 right-4 text-black"
