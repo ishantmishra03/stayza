@@ -7,6 +7,7 @@ import clerkWebHooks from "./controllers/clerkWebHook.js";
 import userRouter from "./routes/userRoutes.js"
 import hotelRouter from './routes/hotelRoutes.js';
 import roomRouter from "./routes/roomRoutes.js"
+import bookingRouter from "./routes/bookingRoutes.js"
 import connectCloudinary from "./config/cloudinary.js"
 
 
@@ -24,6 +25,7 @@ app.use('/api/clerk', clerkWebHooks);
 app.use('/api/user', userRouter);
 app.use('/api/hotel', hotelRouter);
 app.use('/api/room', roomRouter);
+app.use('/api/bookings', bookingRouter);
 
 app.get('/', (req, res) => res.send("Working..."));
 
