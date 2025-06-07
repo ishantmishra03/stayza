@@ -33,7 +33,7 @@ export const createRoom = async (req, res) => {
 //Get All Rooms
 export const getAllRooms = async (req, res) => {
     try {
-        const rooms = await roomModel.find({ isAvailable: true }).polulate({
+        const rooms = await roomModel.find({ isAvailable: true }).populate({
             path: 'hotel',
             populate: {
                 path: 'admin',
