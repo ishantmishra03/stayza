@@ -4,8 +4,8 @@ import { FaHome, FaPlus, FaComments } from "react-icons/fa";
 
 const sidebarLinks = [
   { name: "Dashboard", path: "/admin", icon: <FaHome className="text-lg" /> },
-  { name: "Add Hotel", path: "add-hotel", icon: <FaPlus className="text-lg" /> },
-  { name: "List Hotels", path: "list-hotels", icon: <FaComments className="text-lg" /> },
+  { name: "Add Room", path: "add-room", icon: <FaPlus className="text-lg" /> },
+  { name: "List Rooms", path: "list-rooms", icon: <FaComments className="text-lg" /> },
 ];
 
 const Sidebar = () => {

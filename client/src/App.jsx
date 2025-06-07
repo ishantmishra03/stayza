@@ -25,8 +25,8 @@ const App = () => {
 
         <Route path="/admin" element={<Layout />}>
           <Route index element={<Dashboard />}/>
-          <Route path="add-hotel" element={<AddRoom />}/>
-          <Route path="list-hotels" element={<ListRoom />}/>
+          <Route path="add-room" element={<AddRoom />}/>
+          <Route path="list-rooms" element={<ListRoom />}/>
         </Route>
       </Routes>
     </div>

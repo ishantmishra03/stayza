@@ -20,7 +20,7 @@ const ListRoom = () => {
     } catch (error) {
       toast.error(error.message);
     }
-  },[axios, getToken]);
+  }, [axios, getToken]);
 
   useEffect(() => {
     if (user) {
@@ -28,12 +28,31 @@ const ListRoom = () => {
     }
   }, [user, fetchRooms]);
 
-  const toggleAvailability = (id) => {
-    setRooms((prev) =>
-      prev.map((room) =>
-        room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
-      )
-    );
+  //Toggle Availability
+  // const toggleAvailability = (id) => {
+  //   setRooms((prev) =>
+  //     prev.map((room) =>
+  //       room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
+  //     )
+  //   );
+  // };
+
+  const toggleAvailable = async (roomId) => {
+    try {
+      const { data } = await axios.post(
+        "/api/room/toggle-availability",
+        { roomId },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        fetchRooms();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -41,7 +60,7 @@ const ListRoom = () => {
       {/* Title */}
       <div className="flex flex-col justify-center items-center text-center md:items-start md:text-left mb-6">
         <h1 className="text-3xl md:text-4xl playfair font-semibold">
-          Hotel Lists
+          Room Lists
         </h1>
         <p className="text-sm md:text-base text-gray-500/90 mt-2 max-w-2xl outfit">
           Monitor your room listings, track bookings and manage availability.
@@ -63,7 +82,7 @@ const ListRoom = () => {
           <tbody>
             {rooms.map((room) => (
               <tr key={room._id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-4">{room.name}</td>
+                <td className="px-4 py-4">{room.type}</td>
                 <td className="px-4 py-4">
                   <ul className="list-disc ml-4 space-y-1 text-xs">
                     {room.amenities.map((a, i) => (
@@ -78,7 +97,7 @@ const ListRoom = () => {
                       type="checkbox"
                       className="sr-only"
                       checked={room.isAvailable}
-                      onChange={() => toggleAvailability(room._id)}
+                      onChange={() => toggleAvailable(room._id)}
                     />
                     <div
                       className={`w-10 h-5 bg-gray-300 rounded-full shadow-inner transition duration-300 ease-in-out ${

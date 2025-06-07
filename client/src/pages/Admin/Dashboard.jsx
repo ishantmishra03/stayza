@@ -1,9 +1,36 @@
-import { useState } from "react";
-import { dashboardDummyData } from "../../data/data";
+import { useEffect, useState } from "react";
 import { FaCalendarCheck, FaDollarSign } from "react-icons/fa";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(dashboardDummyData);
+  const { axios, getToken, user } = useAppContext();
+  const [dashboardData, setDashboardData] = useState({
+    bookings: [],
+    totalBookings: 0,
+    totalRevenue: 0,
+  });
+
+  const fetchDashboardData = async () => {
+    try {
+      const { data } = axios.get("/api/bookings/hotel", {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if(data.success){
+        setDashboardData(data.dashboardData);
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if(user){
+      fetchDashboardData()
+    }
+  },[])
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-8">
@@ -11,7 +38,8 @@ const Dashboard = () => {
       <div className="flex flex-col justify-center items-center text-center md:items-start md:text-left">
         <h1 className="text-3xl md:text-4xl playfair">Dashboard</h1>
         <p className="text-sm md:text-base text-gray-500/90 mt-2 max-w-2xl outfit">
-          Monitor your room listings, track bookings and analyze all revenue in one place
+          Monitor your room listings, track bookings and analyze all revenue in
+          one place
         </p>
       </div>
 
@@ -21,14 +49,18 @@ const Dashboard = () => {
           <FaCalendarCheck className="text-2xl text-indigo-500" />
           <div>
             <p className="text-sm text-gray-500 outfit">Total Bookings</p>
-            <p className="text-xl font-semibold text-black outfit">{dashboardData.totalBookings}</p>
+            <p className="text-xl font-semibold text-black outfit">
+              {dashboardData.totalBookings}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-4 bg-white shadow-md rounded-lg px-6 py-4 border">
           <FaDollarSign className="text-2xl text-green-500" />
           <div>
             <p className="text-sm text-gray-500 outfit">Total Revenue</p>
-            <p className="text-xl font-semibold text-black outfit">${dashboardData.totalRevenue}</p>
+            <p className="text-xl font-semibold text-black outfit">
+              ${dashboardData.totalRevenue}
+            </p>
           </div>
         </div>
       </div>

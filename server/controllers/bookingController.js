@@ -1,5 +1,6 @@
 import bookingModel from "../models/booking.models.js"
 import hotelModel from "../models/hotel.models.js"
+import roomModel from "../models/room.models.js"
 
 //Check Availability of room
 const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
@@ -35,7 +36,7 @@ export const createBooking = async (req, res) => {
 
         const isAvailable = await checkAvailability({ room, checkInDate, checkOutDate });
 
-        if (!isAvailable) return res.json({ success: false, message: "Rpom Not Available" });
+        if (!isAvailable) return res.json({ success: false, message: "Room Not Available" });
 
         const roomData = await roomModel.findById(room).populate('hotel');
         let totalPrice = roomData.pricePerNight;
@@ -76,7 +77,7 @@ export const getUserBookings = async (req, res) => {
 
 export const getHotelBookings = async (req, res) => {
     try {
-        const hotel = await hotelModel.find({ admin: req.auth.userId });
+        const hotel = await hotelModel.findOne({ admin: req.auth.userId });
         if (!hotel) {
             return res.json({ success: false, message: "No Hotel found" });
         }
