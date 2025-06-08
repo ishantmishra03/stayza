@@ -1,15 +1,82 @@
-import React, { useState } from "react";
-import { useNavigate, useSearchParams  } from "react-router-dom";
-import { Footer } from "../components";
-import { rooms, amenityIcons } from "../data/data";
+import React, { useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaStar, FaFilter } from "react-icons/fa";
-import { useAppContext } from '../context/AppContext'
+import { useAppContext } from "../context/AppContext";
+import { Footer } from "../components";
+import { amenityIcons } from "../data/data";
+
+// Constants
+const ROOM_TYPES = ["Single Bed", "Double Bed", "Luxury Room"];
+const PRICE_RANGES = ["0 to 200", "200 to 300", "300 to 1000"];
+const SORT_OPTIONS = ["Price: Low to High", "Price: High to Low"];
 
 const Hotels = () => {
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const navigate = useNavigate();
-  const [searchParams, setSearchParamas] = useSearchParams();
-  const {rooms} = useAppContext();
+  const [searchParams] = useSearchParams();
+  const { rooms } = useAppContext();
+
+  const [filters, setFilters] = useState({
+    roomTypes: [],
+    priceRanges: [],
+  });
+
+  const [sortOption, setSortOption] = useState("");
+
+  // Handle filter checkboxes
+  const handleFilterChange = (checked, type, value) => {
+    setFilters((prev) => {
+      const updated = { ...prev };
+      if (checked) {
+        updated[type] = [...prev[type], value];
+      } else {
+        updated[type] = prev[type].filter((v) => v !== value);
+      }
+      return updated;
+    });
+  };
+
+  // Handle sorting radio
+  const handleSortChange = (value) => {
+    setSortOption(value);
+  };
+
+  // Filter + sort logic
+  const filteredRooms = useMemo(() => {
+    let result = [...rooms];
+
+    // Room type
+    if (filters.roomTypes.length > 0) {
+      result = result.filter((room) => filters.roomTypes.includes(room.type));
+    }
+
+    // Price range
+    if (filters.priceRanges.length > 0) {
+      result = result.filter((room) =>
+        filters.priceRanges.some((range) => {
+          const [min, max] = range.split(" to ").map(Number);
+          return room.pricePerNight >= min && room.pricePerNight <= max;
+        })
+      );
+    }
+
+    // Destination (from search params)
+    const destination = searchParams.get("destination");
+    if (destination) {
+      result = result.filter((room) =>
+        room.hotel.city.toLowerCase().includes(destination.toLowerCase())
+      );
+    }
+
+    // Sort
+    if (sortOption === "Price: Low to High") {
+      result.sort((a, b) => a.pricePerNight - b.pricePerNight);
+    } else if (sortOption === "Price: High to Low") {
+      result.sort((a, b) => b.pricePerNight - a.pricePerNight);
+    }
+
+    return result;
+  }, [rooms, filters, sortOption, searchParams]);
 
   return (
     <>
@@ -27,10 +94,10 @@ const Hotels = () => {
           </button>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 ">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters */}
           {(showMobileFilter || window.innerWidth >= 1024) && (
-            <div className="w-full lg:w-1/4 bg-white border border-gray-200  shadow-sm p-6 outfit">
+            <div className="w-full lg:w-1/4 bg-white border border-gray-200 shadow-sm p-6 outfit">
               <h3 className="text-xl font-semibold text-black mb-5">Filters</h3>
               <form className="space-y-6 text-sm text-gray-800">
                 {/* Room Type */}
@@ -38,13 +105,12 @@ const Hotels = () => {
                   <p className="font-semibold mb-3 uppercase text-xs text-gray-500 tracking-wider">
                     Room Type
                   </p>
-                  {["Single Bed", "Double Bed", "Luxury Room"].map((type) => (
-                    <label
-                      key={type}
-                      className="flex items-center space-x-2 mb-2 cursor-pointer hover:text-black"
-                    >
+                  {ROOM_TYPES.map((type) => (
+                    <label key={type} className="flex items-center space-x-2 mb-2 cursor-pointer hover:text-black">
                       <input
                         type="checkbox"
+                        checked={filters.roomTypes.includes(type)}
+                        onChange={(e) => handleFilterChange(e.target.checked, "roomTypes", type)}
                         className="accent-black h-4 w-4 border border-gray-300 rounded"
                       />
                       <span>{type}</span>
@@ -57,20 +123,17 @@ const Hotels = () => {
                   <p className="font-semibold mb-3 uppercase text-xs text-gray-500 tracking-wider">
                     Price Range
                   </p>
-                  {["Under $200", "$200–$300", "Above $300"].map(
-                    (range, idx) => (
-                      <label
-                        key={idx}
-                        className="flex items-center space-x-2 mb-2 cursor-pointer hover:text-black"
-                      >
-                        <input
-                          type="checkbox"
-                          className="accent-black h-4 w-4 border border-gray-300 rounded"
-                        />
-                        <span>{range}</span>
-                      </label>
-                    )
-                  )}
+                  {PRICE_RANGES.map((range) => (
+                    <label key={range} className="flex items-center space-x-2 mb-2 cursor-pointer hover:text-black">
+                      <input
+                        type="checkbox"
+                        checked={filters.priceRanges.includes(range)}
+                        onChange={(e) => handleFilterChange(e.target.checked, "priceRanges", range)}
+                        className="accent-black h-4 w-4 border border-gray-300 rounded"
+                      />
+                      <span>{range}</span>
+                    </label>
+                  ))}
                 </div>
 
                 {/* Sort */}
@@ -78,22 +141,18 @@ const Hotels = () => {
                   <p className="font-semibold mb-3 uppercase text-xs text-gray-500 tracking-wider">
                     Sort By
                   </p>
-                  <label className="flex items-center space-x-2 mb-2 cursor-pointer hover:text-black">
-                    <input
-                      type="radio"
-                      name="sort"
-                      className="accent-black h-4 w-4 border border-gray-300 rounded"
-                    />
-                    <span>Price: Low to High</span>
-                  </label>
-                  <label className="flex items-center space-x-2 cursor-pointer hover:text-black">
-                    <input
-                      type="radio"
-                      name="sort"
-                      className="accent-black h-4 w-4 border border-gray-300 rounded"
-                    />
-                    <span>Price: High to Low</span>
-                  </label>
+                  {SORT_OPTIONS.map((sort) => (
+                    <label key={sort} className="flex items-center space-x-2 cursor-pointer hover:text-black">
+                      <input
+                        type="radio"
+                        name="sort"
+                        checked={sortOption === sort}
+                        onChange={() => handleSortChange(sort)}
+                        className="accent-black h-4 w-4 border border-gray-300 rounded"
+                      />
+                      <span>{sort}</span>
+                    </label>
+                  ))}
                 </div>
               </form>
             </div>
@@ -102,9 +161,9 @@ const Hotels = () => {
           {/* Hotel Listings */}
           <div className="w-full lg:w-3/4 space-y-10">
             <h1 className="playfair text-3xl">Hotel Rooms</h1>
-            {rooms.map((room) => (
+            {filteredRooms.map((room) => (
               <div key={room._id}>
-                <div className="flex flex-col md:flex-row gap-4 bg-white rounded-xl overflow-hidden  cursor-pointer">
+                <div className="flex flex-col md:flex-row gap-4 bg-white rounded-xl overflow-hidden cursor-pointer">
                   {/* Image */}
                   <img
                     src={room.images[0]}
@@ -139,14 +198,10 @@ const Hotels = () => {
                       <div>
                         <p className="text-lg font-semibold text-black">
                           ${room.pricePerNight}
-                          <span className="text-sm font-normal text-gray-500">
-                            {" "}
-                            / night
-                          </span>
+                          <span className="text-sm font-normal text-gray-500"> / night</span>
                         </p>
                         <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
-                          <FaStar className="text-yellow-500" />{" "}
-                          {room.rating}
+                          <FaStar className="text-yellow-500" /> {room.rating}
                         </p>
                       </div>
                       <button

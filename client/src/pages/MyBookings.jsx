@@ -81,6 +81,7 @@ const MyBookings = () => {
             </div>
 
             {/* Date & Timings */}
+            
             <div className="mt-4 md:mt-0 flex flex-col justify-center text-sm text-gray-600 outfit">
               <p>
                 <strong>Check-in:</strong>{" "}

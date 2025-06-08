@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaMapMarkerAlt, FaCalendarAlt, FaSearch } from "react-icons/fa";
+import {useAppContext} from "../../context/AppContext"
+import toast from "react-hot-toast";
 
 const cities = ["Delhi", "Mumbai", "Chennai", "Banglore"]
 
 const Hero = () => {
+  const {navigate} = useAppContext();
+  const [destination, setDestination] = useState('');
+
+  const onSubmit = async(e) => {
+    e.preventDefault();
+    try {
+      navigate(`/hotels/?destination=${destination}`)
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
   return (
     <div className="pt-32 px-6 md:pt-40 md:px-15 max-w-screen-xl mx-auto">
       {/* Title Section */}
@@ -18,7 +31,7 @@ const Hero = () => {
       </p>
 
       {/* Form Section */}
-      <form className="bg-white text-gray-500 rounded-lg px-6 py-6 flex flex-col md:flex-row md:gap-6 mt-8 shadow-lg outfit">
+      <form onSubmit={onSubmit} className="bg-white text-gray-500 rounded-lg px-6 py-6 flex flex-col md:flex-row md:gap-6 mt-8 shadow-lg outfit">
         {/* Destination Input */}
         <div className="flex flex-col w-full md:w-1/4">
           <div className="flex items-center gap-2 mb-2">
@@ -28,6 +41,9 @@ const Hero = () => {
           <input
             list="destinations"
             id="destinationInput"
+            name='destination'
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
             type="text"
             className="rounded border border-gray-200 px-3 py-2 text-sm outline-none"
             placeholder="Type here"

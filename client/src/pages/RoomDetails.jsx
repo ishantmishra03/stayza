@@ -4,7 +4,6 @@ import { Footer } from "../components";
 import {
   FaLocationArrow,
   FaStar,
-  FaMapMarkerAlt,
   FaCalendarAlt,
   FaSearch,
 } from "react-icons/fa";
@@ -16,14 +15,16 @@ const RoomDetails = () => {
   const { rooms, axios, getToken } = useAppContext();
   const navigate = useNavigate();
   const { id } = useParams();
+
   const [room, setRoom] = useState(null);
   const [mainImage, setMainImage] = useState(null);
 
-  const [checkInDate, setCheckInDate] = useState(null);
-  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [checkInDate, setCheckInDate] = useState("");
+  const [checkOutDate, setCheckOutDate] = useState("");
   const [guests, setGuests] = useState(1);
-
   const [isAvailable, setIsAvailable] = useState(false);
+
+  // Find room on mount
   useEffect(() => {
     const foundRoom = rooms.find((room) => room._id === id);
     if (foundRoom) {
@@ -32,14 +33,19 @@ const RoomDetails = () => {
     }
   }, [id, rooms]);
 
-  //Check if Room is available
+  // Check availability
   const checkAvailability = async () => {
-    try {
-      if (checkInDate > checkOutDate) {
-        toast.error("Check your chekc in and check out date");
-        return;
-      }
+    if (!checkInDate || !checkOutDate) {
+      toast.error("Please select both check-in and check-out dates.");
+      return;
+    }
 
+    if (new Date(checkInDate) > new Date(checkOutDate)) {
+      toast.error("Check-in date must be before check-out date.");
+      return;
+    }
+
+    try {
       const { data } = await axios.post(
         "/api/bookings/check-availability",
         { room: id, checkInDate, checkOutDate },
@@ -47,26 +53,40 @@ const RoomDetails = () => {
           headers: { Authorization: `Bearer ${await getToken()}` },
         }
       );
+
       if (data.success) {
         setIsAvailable(true);
-        toast.success("Room is Available");
+        toast.success("Room is available.");
       } else {
         setIsAvailable(false);
-        toast.error("Room Not Available");
+        toast.error(data.message || "Room not available.");
       }
     } catch (error) {
-      toast.error(error.message);
+      const message =
+        error.response?.data?.message || error.message || "Failed to check availability.";
+      toast.error(message);
     }
   };
 
-  //Submit Booking form
+  // Book room
   const onSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (!isAvailable) {
-        return checkAvailability();
-      }
 
+    if (!checkInDate || !checkOutDate || !guests) {
+      toast.error("Please complete all booking details.");
+      return;
+    }
+
+    if (guests < 1 || guests > 4) {
+      toast.error("Guests must be between 1 and 4.");
+      return;
+    }
+
+    if (!isAvailable) {
+      return checkAvailability();
+    }
+
+    try {
       const { data } = await axios.post(
         "/api/bookings/book",
         {
@@ -80,15 +100,18 @@ const RoomDetails = () => {
           headers: { Authorization: `Bearer ${await getToken()}` },
         }
       );
-      if(data.success){
-        toast.success(data.message);
-        navigate('/my-bookings');
-        scrollTo(0,0);
+
+      if (data.success) {
+        toast.success(data.message || "Booking successful!");
+        navigate("/my-bookings");
+        window.scrollTo(0, 0);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Booking failed. Try again.");
       }
     } catch (error) {
-      toast.error(error.message);
+      const message =
+        error.response?.data?.message || error.message || "Booking request failed.";
+      toast.error(message);
     }
   };
 
@@ -188,10 +211,7 @@ const RoomDetails = () => {
         >
           {/* Check-in */}
           <div className="flex flex-col">
-            <label
-              htmlFor="checkIn"
-              className="mb-1 font-medium flex items-center gap-2"
-            >
+            <label className="mb-1 font-medium flex items-center gap-2">
               <FaCalendarAlt /> Check-in
             </label>
             <input
@@ -207,10 +227,7 @@ const RoomDetails = () => {
 
           {/* Check-out */}
           <div className="flex flex-col">
-            <label
-              htmlFor="checkOut"
-              className="mb-1 font-medium flex items-center gap-2"
-            >
+            <label className="mb-1 font-medium flex items-center gap-2">
               <FaCalendarAlt /> Check-out
             </label>
             <input
@@ -238,7 +255,7 @@ const RoomDetails = () => {
               type="number"
               min="1"
               max="4"
-              placeholder="0"
+              placeholder="1"
               className="border border-gray-200 rounded px-3 py-2 text-sm"
             />
           </div>
