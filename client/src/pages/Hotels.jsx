@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams  } from "react-router-dom";
 import { Footer } from "../components";
 import { rooms, amenityIcons } from "../data/data";
 import { FaStar, FaFilter } from "react-icons/fa";
+import { useAppContext } from '../context/AppContext'
 
 const Hotels = () => {
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParamas] = useSearchParams();
+  const {rooms} = useAppContext();
 
   return (
     <>
@@ -105,7 +108,7 @@ const Hotels = () => {
                   {/* Image */}
                   <img
                     src={room.images[0]}
-                    alt={room.name}
+                    alt={room.hotel.name}
                     loading="lazy"
                     className="w-full md:w-1/3 h-60 object-cover cursor-pointer rounded-xl"
                   />
@@ -114,10 +117,10 @@ const Hotels = () => {
                   <div className="p-5 flex flex-col justify-between w-full">
                     <div>
                       <h2 className="text-2xl font-semibold text-gray-800 cursor-pointer playfair">
-                        {room.name}
+                        {room.hotel.name}
                       </h2>
                       <p className="text-sm text-gray-500 mt-1 outfit">
-                        {room.location}
+                        {room.hotel.address}
                       </p>
 
                       <div className="flex flex-wrap gap-2 mt-3 outfit">
@@ -143,7 +146,7 @@ const Hotels = () => {
                         </p>
                         <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
                           <FaStar className="text-yellow-500" />{" "}
-                          {room.rating.toFixed(1)}
+                          {room.rating}
                         </p>
                       </div>
                       <button

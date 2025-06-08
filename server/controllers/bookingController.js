@@ -67,13 +67,22 @@ export const createBooking = async (req, res) => {
 //API to get all bookings of a user
 export const getUserBookings = async (req, res) => {
     try {
-        const user = req.user._id;
-        const bookings = await bookingModel.find({ user }).populate('room hotel').sort({ createdAt: -1 });
+        const userId = req.auth?.userId;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const bookings = await bookingModel
+            .find({ user: userId })
+            .populate('room hotel')
+            .sort({ createdAt: -1 });
+
         res.json({ success: true, bookings });
     } catch (error) {
-        return res.json({ success: false, message: error.message })
+        res.status(500).json({ success: false, message: error.message });
     }
-}
+};
 
 export const getHotelBookings = async (req, res) => {
     try {
@@ -83,9 +92,9 @@ export const getHotelBookings = async (req, res) => {
         }
         const bookings = await bookingModel.find({ hotel: hotel._id }).populate('room hotel user').sort({ createdAt: -1 });
         const totalBookings = bookings.length;
-        const totalRevenue = bookings.reduce((acc,curr) => acc + curr.totalPrice, 0)
-res.json({ success: true, totalBookings, totalRevenue, bookings });
+        const totalRevenue = bookings.reduce((acc, curr) => acc + curr.totalPrice, 0)
+        res.json({ success: true, totalBookings, totalRevenue, bookings });
     } catch (error) {
-    return res.json({ success: false, message: error.message })
-}
+        return res.json({ success: false, message: error.message })
+    }
 }

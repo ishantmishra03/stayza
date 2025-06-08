@@ -1,9 +1,10 @@
 import React from "react";
 import HotelCard from "../HotelCard/HotelCard";
-import { rooms } from "../../data/data";
+import {useAppContext} from "../../context/AppContext"
 
 const Featured = () => {
-  return (
+  const { rooms } = useAppContext();
+  return rooms.length > 0 && (
     <div className="w-full px-4 sm:px-8 lg:px-16 pt-70 pb-15 md:pt-25">
       <div className="text-center mb-12">
         <p className="text-4xl font-serif playfair">Featured Destination</p>

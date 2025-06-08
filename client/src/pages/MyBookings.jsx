@@ -1,9 +1,32 @@
-import React, { useState } from "react";
-import { userBookingsDummyData } from "../data/data";
+import React, { useEffect, useState } from "react";
 import { FaLocationArrow } from "react-icons/fa";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const MyBookings = () => {
-  const [bookings, setBookings] = useState(userBookingsDummyData);
+  const { axios, getToken, user } = useAppContext();
+  const [bookings, setBookings] = useState([]);
+
+  const fetchBookings = async () => {
+    try {
+      const { data } = await axios.get("/api/bookings/user",  {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        setBookings(data.bookings);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchBookings();
+    }
+  }, []);
 
   return (
     <div className="py-28 md:pb-35 md:pt-32 px-4 md:px-16 lg:px-24 xl:px-32">
@@ -11,8 +34,8 @@ const MyBookings = () => {
       <div className="flex flex-col justify-center items-center text-center md:items-start md:text-left">
         <h1 className="text-4xl md:text-[40px] playfair">My Bookings</h1>
         <p className="text-sm md:text-base text-gray-500/90 mt-2 max-w-2xl outfit">
-          Easily manage your past, current, and upcoming hotel reservations in one
-          place. Plan your trips seamlessly with just a few clicks.
+          Easily manage your past, current, and upcoming hotel reservations in
+          one place. Plan your trips seamlessly with just a few clicks.
         </p>
       </div>
 
@@ -60,10 +83,12 @@ const MyBookings = () => {
             {/* Date & Timings */}
             <div className="mt-4 md:mt-0 flex flex-col justify-center text-sm text-gray-600 outfit">
               <p>
-                <strong>Check-in:</strong> {new Date(booking.checkInDate).toDateString()}
+                <strong>Check-in:</strong>{" "}
+                {new Date(booking.checkInDate).toDateString()}
               </p>
               <p>
-                <strong>Check-out:</strong> {new Date(booking.checkOutDate).toDateString()}
+                <strong>Check-out:</strong>{" "}
+                {new Date(booking.checkOutDate).toDateString()}
               </p>
             </div>
 
@@ -79,8 +104,10 @@ const MyBookings = () => {
                 {booking.isPaid ? "Paid" : "Unpaid"}
               </span>
               {!booking.isPaid && (
-                  <button className="px-3 py-1.5 rounded-full bg-gray-100 text-black outfit text-xs cursor-pointer">Pay Now</button>
-                )}
+                <button className="px-3 py-1.5 rounded-full bg-gray-100 text-black outfit text-xs cursor-pointer">
+                  Pay Now
+                </button>
+              )}
             </div>
           </div>
         ))}
