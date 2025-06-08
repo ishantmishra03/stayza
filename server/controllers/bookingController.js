@@ -1,6 +1,7 @@
 import bookingModel from "../models/booking.models.js"
 import hotelModel from "../models/hotel.models.js"
 import roomModel from "../models/room.models.js"
+import stripe from "stripe";
 
 //Check Availability of room
 const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
@@ -84,6 +85,7 @@ export const getUserBookings = async (req, res) => {
     }
 };
 
+//Get all bookings fro hotel dashboard
 export const getHotelBookings = async (req, res) => {
     try {
         const hotel = await hotelModel.findOne({ admin: req.auth.userId });
@@ -94,6 +96,49 @@ export const getHotelBookings = async (req, res) => {
         const totalBookings = bookings.length;
         const totalRevenue = bookings.reduce((acc, curr) => acc + curr.totalPrice, 0)
         res.json({ success: true, totalBookings, totalRevenue, bookings });
+    } catch (error) {
+        return res.json({ success: false, message: error.message })
+    }
+}
+
+//Stripe Payment
+export const stripePayment = async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+
+        const booking = await bookingModel.findById(bookingId);
+        const roomData = await roomModel.findById(booking.room).populate('hotel');
+        const totalPrice = booking.totalPrice;
+
+        const { origin } = req.headers;
+
+        const stripeInstance = new stripe(process.env.STRIPE_PRIVATE_KEY);
+
+        const line_items = [
+            {
+                price_data: {
+                    currency: "usd",
+                    product_data: {
+                        name: roomData.hotel.name,
+                    },
+                    unit_amount: totalPrice * 100
+                },
+                quantity: 1,
+            }
+        ]
+
+        //Create checkout session
+        const session = await stripeInstance.checkout.sessions.create({
+            line_items,
+            mode: "payment",
+            success_url: `${origin}/loader/my-bookings`,
+            cancel_url: `${origin}/my-bookings`,
+            metadata: {
+                bookingId
+            }
+        })
+
+        res.json({ success: true, url: session.url })
     } catch (error) {
         return res.json({ success: false, message: error.message })
     }

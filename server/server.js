@@ -9,6 +9,7 @@ import hotelRouter from './routes/hotelRoutes.js';
 import roomRouter from "./routes/roomRoutes.js"
 import bookingRouter from "./routes/bookingRoutes.js"
 import connectCloudinary from "./config/cloudinary.js"
+import { stripeWebHooks } from "./controllers/stripeWebHook.js"
 
 
 //Configurations
@@ -20,6 +21,9 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://stayza.vercel.app", 
 ];
+
+//API to listen Stripe Webhook
+app.post('/api/stripe', express.raw({type: "application/json"}), stripeWebHooks)
 
 app.use(
   cors({

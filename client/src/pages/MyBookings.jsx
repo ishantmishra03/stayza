@@ -9,7 +9,7 @@ const MyBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const { data } = await axios.get("/api/bookings/user",  {
+      const { data } = await axios.get("/api/bookings/user", {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
       if (data.success) {
@@ -22,11 +22,30 @@ const MyBookings = () => {
     }
   };
 
+  const handlePayment = async (bookingId) => {
+    try {
+      const {data} = await axios.post(
+        "/api/bookings/stripe-payment",
+        { bookingId },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+      if(data.success){
+        window.location.href= data.url
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchBookings();
     }
-  }, []);
+  }, [user]);
 
   return (
     <div className="py-28 md:pb-35 md:pt-32 px-4 md:px-16 lg:px-24 xl:px-32">
@@ -81,7 +100,7 @@ const MyBookings = () => {
             </div>
 
             {/* Date & Timings */}
-            
+
             <div className="mt-4 md:mt-0 flex flex-col justify-center text-sm text-gray-600 outfit">
               <p>
                 <strong>Check-in:</strong>{" "}
@@ -105,7 +124,7 @@ const MyBookings = () => {
                 {booking.isPaid ? "Paid" : "Unpaid"}
               </span>
               {!booking.isPaid && (
-                <button className="px-3 py-1.5 rounded-full bg-gray-100 text-black outfit text-xs cursor-pointer">
+                <button onClick={()=>handlePayment(booking._id)} className="px-3 py-1.5 rounded-full bg-gray-100 text-black outfit text-xs cursor-pointer">
                   Pay Now
                 </button>
               )}
